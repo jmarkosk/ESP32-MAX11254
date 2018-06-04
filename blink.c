@@ -25,7 +25,7 @@
 #define AV_RATE	10
 
 static const char* tag = "BLINK";
-static const char* tag1 = "MAX11210";
+static const char* tag1 = "MAX11254";
 static const char* task_console = "CONSOLE";
 
 
