@@ -12,7 +12,7 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_log.h"
-#include "max11210.h"
+#include "max11254.h"
 #include "board_config.h"
 
 #include "sdkconfig.h"

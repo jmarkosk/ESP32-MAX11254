@@ -16,11 +16,11 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_log.h"
-#include "max11210.h"
+#include "max11254.h"
 //#include "intrin.h"
 #include "byteswap.h"
 
-static const char* tag = "MAX11210";
+static const char* tag = "MAX11254";
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 //#define install
