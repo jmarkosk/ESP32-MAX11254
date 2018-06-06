@@ -1,10 +1,6 @@
 /**
   ******************************************************************************
-  * @file    max11210.c
-   * @author  Domen Jurkovic
-  * @version V1.0
-  * @date    18-Nov-2015
-  * @brief   This file provides functions for MAX11210
+  MAX11254
   ******************************************************************************
   */
 
@@ -77,32 +73,14 @@ void SPI_init(void){
     ESP_ERROR_CHECK(spi_bus_add_device(HSPI_HOST, &dev_config, &handle)); 
 }
 
-void MAX11210_init(void){
+void MAX11254_init(void){
 	
 	SPI_init();	
 	ESP_LOGI(tag, "... Bus Initilized.");
 	
-    //MAX11210_read_reg(DATA);
-	//ESP_LOGI(tag, "...TEST.");
-    //for(;;);
+  
 
-
-	MAX11210_send_command(POWER_DOWN,1);
-
-	vTaskDelay(300 / portTICK_PERIOD_MS);
-
-
-	
-	//MAX11210_write_reg(CTRL3, 0x00, 0, 0);	//	NOSYSG NOSYSO NOSCG NOSCO = 0; GAIN = 1;
-	MAX11210_write_reg(SOC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SGC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SCOC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SCGC, 0x00, 0x00, 0x00);
-	//MAX11210_write_reg(CTRL3, 0x1E, 0, 0);	//	NOSYSG NOSYSO NOSCG NOSCO = 1; GAIN = 1;
-	
-	MAX11210_write_reg(CTRL3,0x18,0,0);	
-    MAX11210_write_reg(CTRL1,0x42,0,0);
-    MAX11210_write_reg(CTRL2,0xF0,0,0);  //Set GPIO to outputs
+    MAX11254_write_reg(SEQ,0x12,0,0);  //Set GPIO to outputs
    
 
 }
@@ -113,7 +91,7 @@ void MAX11210_init(void){
 */
 
 
-uint32_t MAX11210_read_reg(uint8_t reg){
+uint32_t MAX11254_read_reg(uint8_t reg){
 
 	uint8_t read_command = 0xC1;	
 	uint32_t result = 0;		
@@ -157,7 +135,7 @@ uint32_t MAX11210_read_reg(uint8_t reg){
 */
 
 
-void MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB){
+void MAX11254_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB){
 	
 	uint8_t write_command = 0xC0;
     uint8_t length = 1;
@@ -169,7 +147,8 @@ void MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, u
 
     memset(&write_reg, 0, sizeof(write_reg));  //sets trans_desc1 to zero.  Errors will occur if this is not done.
    
-    if((reg == STAT1) | (reg == CTRL1) | (reg == CTRL2) | (reg == CTRL3)){	// read 1 byte
+    if((reg == GPIO_CTRL) | (reg == CTRL1) | (reg == CTRL2) | (reg == CTRL3) | (reg == DELAY) | (reg == CHMAP1) | 
+	   (reg == CHMAP0)    | (reg == SEQ)   | (reg == GPO_DIR)){	// read 1 byte
     	length = 1;
 	}
 	else{
@@ -194,7 +173,7 @@ void MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, u
 
 
 /*
-	Send command to MAX11210.
+	Send command to MAX11254.
 	Commands: 
 		SELF_CALIB
 		SYS_OFFSET_CALIB
@@ -209,7 +188,7 @@ void MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, u
 		MEASURE_60_SPS
 		MEASURE_120_SPS
 */
-void MAX11210_send_command(uint8_t command, uint8_t length){
+void MAX11254_send_command(uint8_t command, uint8_t length){
 
    
     spi_transaction_t trans_desc;
@@ -217,7 +196,7 @@ void MAX11210_send_command(uint8_t command, uint8_t length){
     memset(&trans_desc,0,sizeof(trans_desc));
 
 	trans_desc.addr = 0;
-	trans_desc.cmd  = command;
+	trans_desc.cmd  = (CONVERSION_COMMAND | command);
 	trans_desc.flags = 0;
 	trans_desc.length = (length * 8);    
 	trans_desc.rxlength = 0;
@@ -230,45 +209,45 @@ void MAX11210_send_command(uint8_t command, uint8_t length){
 }
 
 /*
-	Calibrate MAX11210
+	Calibrate MAX11254
 */
 
 
-void MAX11210_calibration(){
+void MAX11254_calibration(){
 //#ifdef install
 	// clear registers
-	MAX11210_write_reg(CTRL3, 0x00, 0, 0);	//	NOSYSG NOSYSO NOSCG NOSCO = 0; GAIN = 1;
-	MAX11210_write_reg(SOC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SGC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SCOC, 0x00, 0x00, 0x00);
-	MAX11210_write_reg(SCGC, 0x00, 0x00, 0x00);
+	MAX11254_write_reg(CTRL3, 0x00, 0, 0);	//	NOSYSG NOSYSO NOSCG NOSCO = 0; GAIN = 1;
+	MAX11254_write_reg(SOC, 0x00, 0x00, 0x00);
+	MAX11254_write_reg(SGC, 0x00, 0x00, 0x00);
+	MAX11254_write_reg(SCOC, 0x00, 0x00, 0x00);
+	MAX11254_write_reg(SCGC, 0x00, 0x00, 0x00);
 	/*
 	//GAIN = 1
 	// Enable self calibration registers
-	MAX11210_write_reg(CTRL3, 0x18, 0, 0);	//	NOSYSG=1, NOSYSO=1, NOSCG=0, NOSCO=0; GAIN = 1; 
-	MAX11210_self_calib();	// Self-calibration
+	MAX11254_write_reg(CTRL3, 0x18, 0, 0);	//	NOSYSG=1, NOSYSO=1, NOSCG=0, NOSCO=0; GAIN = 1; 
+	MAX11254_self_calib();	// Self-calibration
 	
 	// Enable system offset register
-	MAX11210_write_reg(CTRL3, 0x10, 0, 0);	//	NOSYSG=1, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 1; 
-	MAX11210_sys_offset_calib();	// System-calibration offset
+	MAX11254_write_reg(CTRL3, 0x10, 0, 0);	//	NOSYSG=1, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 1; 
+	MAX11254_sys_offset_calib();	// System-calibration offset
 	
 	// Enable system gain register
-	MAX11210_write_reg(CTRL3, 0x00, 0, 0);	//	NOSYSG=0, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 1; 
-	MAX11210_sys_gain_calib();	// System-calibration gain
+	MAX11254_write_reg(CTRL3, 0x00, 0, 0);	//	NOSYSG=0, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 1; 
+	MAX11254_sys_gain_calib();	// System-calibration gain
 	*/
 	
 	//GAIN = 16
 	// Enable self calibration registers
-	MAX11210_write_reg(CTRL3, 0x98, 0, 0);	//	NOSYSG=1, NOSYSO=1, NOSCG=0, NOSCO=0; GAIN = 16; 
-	MAX11210_self_calib();	// Self-calibration
+	MAX11254_write_reg(CTRL3, 0x98, 0, 0);	//	NOSYSG=1, NOSYSO=1, NOSCG=0, NOSCO=0; GAIN = 16; 
+	MAX11254_self_calib();	// Self-calibration
 	
 	// Enable system offset register
-	MAX11210_write_reg(CTRL3, 0x90, 0, 0);	//	NOSYSG=1, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 16; 
-	MAX11210_sys_offset_calib();	// System-calibration offset
+	MAX11254_write_reg(CTRL3, 0x90, 0, 0);	//	NOSYSG=1, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 16; 
+	MAX11254_sys_offset_calib();	// System-calibration offset
 	
 	// Enable system gain register
-	MAX11210_write_reg(CTRL3, 0x80, 0, 0);	//	NOSYSG=0, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 16; 
-	MAX11210_sys_gain_calib();	// System-calibration gain
+	MAX11254_write_reg(CTRL3, 0x80, 0, 0);	//	NOSYSG=0, NOSYSO=0, NOSCG=0, NOSCO=0; GAIN = 16; 
+	MAX11254_sys_gain_calib();	// System-calibration gain
 //#endif	
 }
 
@@ -278,8 +257,8 @@ void MAX11210_calibration(){
 		The first level of calibration is the self-calibration where the part performs the required connections to zero and
 	full scale internally. 
 */
-void MAX11210_self_calib(void){
-	MAX11210_send_command(SELF_CALIB,1);	//SCOC
+void MAX11254_self_calib(void){
+	MAX11254_send_command(SELF_CALIB,1);	//SCOC
   vTaskDelay(300 / portTICK_PERIOD_MS);
 	
 }
@@ -290,8 +269,8 @@ void MAX11210_self_calib(void){
 	by presenting a zero-scale signal or a full-scale signal to the input pins and initiating a system zero scale or 
 	system gain calibration command.
 */
-void MAX11210_sys_offset_calib(void){
-	MAX11210_send_command(SYS_OFFSET_CALIB,1);
+void MAX11254_sys_offset_calib(void){
+	//MAX11254_send_command(SYS_OFFSET_CALIB,1);
 	vTaskDelay(300 / portTICK_PERIOD_MS);
 //	delay(300);
 }
@@ -302,8 +281,8 @@ void MAX11210_sys_offset_calib(void){
 	to achieve any digital offset or scaling the user requires with the following restrictions. The range of digital offset
 	correction is QVREF/4. The range of digital gain correction is from 0.5 to 1.5. The resolution of offset correction is 0.5 LSB.
 */
-void MAX11210_sys_gain_calib(void){
-	MAX11210_send_command(SYS_GAIN_CALIB,1);
+void MAX11254_sys_gain_calib(void){
+	//MAX11254_send_command(SYS_GAIN_CALIB,1);
 	vTaskDelay(300 / portTICK_PERIOD_MS);
 //	delay(300);
 }
@@ -314,11 +293,11 @@ void MAX11210_sys_gain_calib(void){
 */
 
 
-void MAX11210_set_meas_mode(uint8_t mode){
-	uint8_t _mode = (uint8_t) MAX11210_read_reg(CTRL1);
+void MAX11254_set_meas_mode(uint8_t mode){
+	uint8_t _mode = (uint8_t) MAX11254_read_reg(CTRL1);
 	_mode &= 0xFD;	// mask CTRL1 register
 	_mode |= mode;	
-	MAX11210_write_reg(CTRL1, _mode, 0, 0);
+	MAX11254_write_reg(CTRL1, _mode, 0, 0);
 }
 
 /*
@@ -332,8 +311,8 @@ void MAX11210_set_meas_mode(uint8_t mode){
 		MEASURE_60_SPS
 		MEASURE_120_SPS
 */
-void MAX11210_start_meas(uint8_t rate){
-	MAX11210_send_command(rate,1);
+void MAX11254_start_meas(uint8_t rate){
+	MAX11254_send_command(rate,1);
 	// tole se mal precekirej
 }
 /*
@@ -348,7 +327,7 @@ void MAX11210_start_meas(uint8_t rate){
 
 
 
-	uint32_t MAX11210_read_result(void){
+uint32_t MAX11254_read_result(void){
     //volatile TickType_t t;
 	//t = xTaskGetTickCount();
 	TickType_t xTicksToWait = MAX_TIME_TO_WAIT;
@@ -357,7 +336,7 @@ void MAX11210_start_meas(uint8_t rate){
 	  /* Initialize xTimeOut.  This records the time at which this function was
    entered. */
     vTaskSetTimeOutState( &xTimeOut );	
-	while((MAX11210_read_reg(STAT1) & 0x0001) != 1)
+	while((MAX11254_read_reg(STAT1) & 0x0001) != 1)
 	{ //wait while RDY is not 1
 		
     	if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) != pdFALSE )
@@ -369,7 +348,7 @@ void MAX11210_start_meas(uint8_t rate){
       	}
 	}
 
-	return MAX11210_read_reg(DATA);
+	return MAX11254_read_reg(DATA0);
 }
 
 /*
@@ -378,9 +357,9 @@ void MAX11210_start_meas(uint8_t rate){
 */
 
 
-uint8_t MAX11210_meas_status(void){
+uint8_t MAX11254_meas_status(void){
 
-	return MAX11210_read_reg(STAT1) & 0x000C;
+	return MAX11254_read_reg(STAT1) & 0x000C;
 }
 
 

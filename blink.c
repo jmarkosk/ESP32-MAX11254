@@ -40,22 +40,22 @@ static void console_task(void *pvParameters);
 
 void read_registers(void){
 
-    printf("\nSTAT1: 0x%08x\n",MAX11210_read_reg(STAT1));
+    printf("\nSTAT1: 0x%08x\n",MAX11254_read_reg(STAT1));
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    printf("CTRL1:  0x%08x\n",MAX11210_read_reg(CTRL1));
+    printf("CTRL1:  0x%08x\n",MAX11254_read_reg(CTRL1));
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    printf("CTRL2: 0x%08x\n",MAX11210_read_reg(CTRL2));
+    printf("CTRL2: 0x%08x\n",MAX11254_read_reg(CTRL2));
     vTaskDelay(100 / portTICK_PERIOD_MS);   
-    printf("CTRL3: 0x%08x\n",MAX11210_read_reg(CTRL3));	
+    printf("CTRL3: 0x%08x\n",MAX11254_read_reg(CTRL3));	
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    printf("SCOC: 0x%08x\n",MAX11210_read_reg(SCOC));
+    printf("SCOC: 0x%08x\n",MAX11254_read_reg(SCOC));
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    printf("SOC:  0x%08x\n",MAX11210_read_reg(SOC));
+    printf("SOC:  0x%08x\n",MAX11254_read_reg(SOC));
     vTaskDelay(100 / portTICK_PERIOD_MS);
-    printf("SCGC: 0x%08x\n",MAX11210_read_reg(SCGC));
+    printf("SCGC: 0x%08x\n",MAX11254_read_reg(SCGC));
     vTaskDelay(100 / portTICK_PERIOD_MS);   
-    printf("SGC: 0x%08x\n\n",MAX11210_read_reg(SGC));	
+    printf("SGC: 0x%08x\n\n",MAX11254_read_reg(SGC));	
     vTaskDelay(100 / portTICK_PERIOD_MS);
     
 }
@@ -108,54 +108,54 @@ void spi_task(void *pvParameter)
 
 
     ESP_LOGI(tag1, ">> inializing");
-    MAX11210_init();    
+    MAX11254_init();    
     ESP_LOGI(tag1, ">> initialized");     
 /*
     for(i = 0; i < 5; i ++){
-		MAX11210_start_meas(MEASURE_10_SPS);
-		MAX11210_read_result();
+		MAX11254_start_meas(MEASURE_10_SPS);
+		MAX11254_read_result();
 	}
 */	
     ESP_LOGI(tag1, "... Calibration Start");   
-    MAX11210_calibration();
+    MAX11254_calibration();
     ESP_LOGI(tag1, "... Calibration END");   
 
 
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("SCOC: 0x%08x\n",MAX11210_read_reg(SCOC));
+    printf("SCOC: 0x%08x\n",MAX11254_read_reg(SCOC));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("SOC:  0x%08x\n",MAX11210_read_reg(SOC));
+    printf("SOC:  0x%08x\n",MAX11254_read_reg(SOC));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("SCGC: 0x%08x\n",MAX11210_read_reg(SCGC));
+    printf("SCGC: 0x%08x\n",MAX11254_read_reg(SCGC));
     vTaskDelay(300 / portTICK_PERIOD_MS);   
-    printf("SGC: 0x%08x\n\n",MAX11210_read_reg(SGC));	
+    printf("SGC: 0x%08x\n\n",MAX11254_read_reg(SGC));	
     vTaskDelay(300 / portTICK_PERIOD_MS);
 
 
    // ESP_LOGI(tag1, "... Self Calibration Start");   
-   // MAX11210_self_calib();
+   // MAX11254_self_calib();
    // ESP_LOGI(tag1, "... Self Calibration End\n\n");   
 
-    printf("SCOC: 0x%08x\n",MAX11210_read_reg(SCOC));
+    printf("SCOC: 0x%08x\n",MAX11254_read_reg(SCOC));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("SOC:  0x%08x\n",MAX11210_read_reg(SOC));
+    printf("SOC:  0x%08x\n",MAX11254_read_reg(SOC));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("SCGC: 0x%08x\n",MAX11210_read_reg(SCGC));
+    printf("SCGC: 0x%08x\n",MAX11254_read_reg(SCGC));
     vTaskDelay(300 / portTICK_PERIOD_MS);   
-    printf("SGC: 0x%08x\n\n",MAX11210_read_reg(SGC));	
+    printf("SGC: 0x%08x\n\n",MAX11254_read_reg(SGC));	
     vTaskDelay(300 / portTICK_PERIOD_MS);
 
-    printf("STAT1: 0x%08x\n",MAX11210_read_reg(STAT1));
+    printf("STAT1: 0x%08x\n",MAX11254_read_reg(STAT1));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("CTRL1:  0x%08x\n",MAX11210_read_reg(CTRL1));
+    printf("CTRL1:  0x%08x\n",MAX11254_read_reg(CTRL1));
     vTaskDelay(300 / portTICK_PERIOD_MS);
-    printf("CTRL2: 0x%08x\n",MAX11210_read_reg(CTRL2));
+    printf("CTRL2: 0x%08x\n",MAX11254_read_reg(CTRL2));
     vTaskDelay(300 / portTICK_PERIOD_MS);   
-    printf("CTRL3: 0x%08x\n",MAX11210_read_reg(CTRL3));	
+    printf("CTRL3: 0x%08x\n",MAX11254_read_reg(CTRL3));	
     vTaskDelay(300 / portTICK_PERIOD_MS);
 
     printf("*************\n\n");    
-    printf("CTRL1:  0x%08x\n",MAX11210_read_reg(CTRL1));
+    printf("CTRL1:  0x%08x\n",MAX11254_read_reg(CTRL1));
     printf("*************\n\n");
 
     for(;;)  
@@ -167,8 +167,8 @@ void spi_task(void *pvParameter)
             {
 
                 for(i = 0; i < AV_RATE; i++){
-		            MAX11210_start_meas(MEASURE_10_SPS);	//starts a single conversion
-		            result = MAX11210_read_result() & 0x00FFFFFF;
+		            MAX11254_start_meas(MEASURE_10_SPS);	//starts a single conversion
+		            result = MAX11254_read_result() & 0x00FFFFFF;
                     result2 = result;
 		            if((result >> 23) == 0){
 		            }
@@ -222,7 +222,7 @@ void console_task(void *pvParameter)
                 if(j == 'a')ESP_LOGD(task_console, "getchar worked!!");
                 if(j == 's'){
                     ESP_LOGD(task_console, "self_calibrate...");
-                    MAX11210_self_calib();
+                    MAX11254_self_calib();
                 }    
                 if(j == 'r'){
                     ESP_LOGD(task_console, "read registers...");
@@ -230,7 +230,7 @@ void console_task(void *pvParameter)
                 }
                 if(j == 'w'){
                     ESP_LOGD(task_console, "Write CTRL3 0x00...");
-                    MAX11210_write_reg(CTRL3,0x00,0,0);
+                    MAX11254_write_reg(CTRL3,0x00,0,0);
                 }       
                 xSemaphoreGive(xSemaphore);
             }

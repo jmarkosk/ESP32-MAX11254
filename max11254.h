@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file    max11210.h 
+  * @file    MAX11254.h 
   * @author  Domen Jurkovic
   * @version V1.0
   * @date    18-Nov-2015
-  * @brief   Header for max11210.c module
+  * @brief   Header for MAX11254.c module
   ******************************************************************************
   */
   
@@ -77,7 +77,7 @@
     #define GPIO_CTRL 0x4
     #define DELAY     0x5
     #define CHMAP1    0X6
-    #define CHMAP2    0x7
+    #define CHMAP0    0x7
     #define SEQ       0x8
     #define GPO_DIR   0x9          
     #define	SOC		    0x10	// reg size = 24 bits		(System Offset Calibration)
@@ -98,7 +98,7 @@
     #define	SELF_CALIB				0x3f  // [Bit7: 0, Bit6: 0, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: x]
     #define	SLOC_CALIB				0x7f  // [Bit7: 0, Bit6: 1, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: x]
     #define	SYSF_CALIB				0xbf  // [Bit7: 1, Bit6: 0, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: x]
-    #define	SELF_CALIB				0xff  // [Bit7: 1, Bit6: 1, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: x] DO NOT USE
+    #define	DNU_CALIB 				0xff  // [Bit7: 1, Bit6: 1, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: x] DO NOT USE
     //Power state
     #define	POWER_NOP 				0xcf  // [Bit7: x, Bit6: x, Bit5: 0, Bit4: 0, Bit3: x, Bit2: x, Bit1: x, Bit0: x]
     #define	POWER_SLEEP 		  0xdf  // [Bit7: x, Bit6: x, Bit5: 0, Bit4: 1, Bit3: x, Bit2: x, Bit1: x, Bit0: x]
@@ -110,7 +110,7 @@
     #define DATA_FORMAT       0xfb  // [Bit7: x, Bit6: x, Bit5: x, Bit4: x, Bit3: x, Bit2: 0, Bit1: x, Bit0: x]
     //Conversion scycle type: Single vs Continuous
     #define CONV_SCYCLE       0xfd  // [Bit7: x, Bit6: x, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: 0, Bit0: x]
-    /Conversion scycle type: Single vs Continuous
+    //Conversion scycle type: Single vs Continuous
     #define CONV_CONTSC       0xfe  // [Bit7: x, Bit6: x, Bit5: x, Bit4: x, Bit3: x, Bit2: x, Bit1: x, Bit0: 0]
 
     //***********************************************************************************************************
@@ -158,6 +158,26 @@
     #define	MEASURE_30_SPS		0x85
     #define	MEASURE_60_SPS		0x86
     #define	MEASURE_120_SPS		0x87
+//***********************************************************************************************************
+    
+    #define CONVERSION_COMMAND 0x80
+    #define REGISTER_RW        0xc0
+    
+    
+    //Command BYTE
+    //MODE[1:0]
+    #define MODE_UNUSED      0x00  
+    #define MODE_POWER_DOWN  0x10
+    #define MODE_CALIBRATION 0x20
+    #define MODE_SEQUENCER   0x30
+    //RATE[3:0]
+    //RS[4:0]
+    //R/W
+
+
+
+
+
 #endif
 
 #ifdef MAX11210
@@ -167,36 +187,39 @@
   #define MODE_CONTINUOUS		0x00
 
   //ADC WAIT TIMEOUT
-  #define MAX_TIME_TO_WAIT 5  //this is in seconds
+    //this is in seconds
 #endif
+
+#define MAX_TIME_TO_WAIT 5
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void SPI_init(void);
-void MAX11210_init(void);
+void MAX11254_init(void);
 void read_registers(void);
 
-void MAX11210_calibration(void);
-void MAX11210_self_calib(void);
-void MAX11210_sys_offset_calib(void);
-void MAX11210_sys_gain_calib(void);
+void MAX11254_calibration(void);
+void MAX11254_self_calib(void);
+void MAX11254_sys_offset_calib(void);
+void MAX11254_sys_gain_calib(void);
 
-void			MAX11210_set_meas_mode(uint8_t mode);
-void 			MAX11210_start_meas(uint8_t rate);
-uint32_t	MAX11210_read_result(void);
-uint8_t 	MAX11210_meas_status(void);
-
-
-uint32_t   	MAX11210_read_reg(uint8_t reg);
-void  			MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB);
-//void        MAX11210_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB, uint8_t length);
-//void 			MAX11210_send_command(uint8_t command);
-void        MAX11210_send_command(uint8_t command, uint8_t length);
+void			MAX11254_set_meas_mode(uint8_t mode);
+void 			MAX11254_start_meas(uint8_t rate);
+uint32_t	MAX11254_read_result(void);
+uint8_t 	MAX11254_meas_status(void);
 
 
+uint32_t   	MAX11254_read_reg(uint8_t reg);
+void  			MAX11254_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB);
+//void        MAX11254_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, uint8_t reg_val_LSB, uint8_t length);
+//void 			MAX11254_send_command(uint8_t command);
+void        MAX11254_send_command(uint8_t command, uint8_t length);
 
 
 
 
-#endif /* __MAX11210_H */
+
+
+#endif /* __MAX11254_H */
 
 /*****	END OF FILE	****/
