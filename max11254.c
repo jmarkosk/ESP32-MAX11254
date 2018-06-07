@@ -78,10 +78,27 @@ void MAX11254_init(void){
 	SPI_init();	
 	ESP_LOGI(tag, "... Bus Initilized.");
 	
-  
+ #if 0 
+    //Sequence from DATA sheet page 27
+   //Write SEQ register: MUX 0b000, MODE to 0b10 GPODREN to 0B0, MDREN to 0b1, RDYBEN to 0b0
+    MAX11254_write_reg(SEQ,0x12,0,0);  
+	
+	MAX11254_write_reg(DELAY,0xF0,0,0);
 
-    MAX11254_write_reg(SEQ,0x12,0,0);  //Set GPIO to outputs
+	MAX11254_write_reg(CTRL3,0x5c,0,0);
+
+	MAX11254_write_reg(CHMAP0,0x0b,0x27,0x4f);  
+
+	MAX11254_write_reg(CTRL2,0x3f,0,0);
+
+	MAX11254_send_command(0x3E,1);
+
+#endif
+	
+
+
    
+
 
 }
 /*
@@ -146,13 +163,36 @@ void MAX11254_write_reg(uint8_t reg, uint8_t reg_val_HSB, uint8_t reg_val_MSB, u
     spi_transaction_t write_reg;	 
 
     memset(&write_reg, 0, sizeof(write_reg));  //sets trans_desc1 to zero.  Errors will occur if this is not done.
-   
-    if((reg == GPIO_CTRL) | (reg == CTRL1) | (reg == CTRL2) | (reg == CTRL3) | (reg == DELAY) | (reg == CHMAP1) | 
-	   (reg == CHMAP0)    | (reg == SEQ)   | (reg == GPO_DIR)){	// read 1 byte
-    	length = 1;
-	}
-	else{
-		length = 3;
+ 
+	switch(reg)
+	{
+		case GPIO_CTRL: length = 1; break;
+		case CTRL1:     length = 1; break;
+		case CTRL2:     length = 1; break;
+		case CTRL3:     length = 1; break;
+		case SEQ:       length = 1; break;
+		case GPO_DIR:   length = 1; break;
+		
+		case DELAY:     length = 2; break;		   
+		
+		case STAT1:     length = 3; break;
+		case CHMAP0:    length = 3; break;
+		case CHMAP1:    length = 3; break;
+		case SOC:       length = 3; break;
+		case SGC:       length = 3; break;
+		case SCOC:      length = 3; break;
+		case SCGC:      length = 3; break;
+		case DATA0:     length = 3; break;
+		case DATA1:     length = 3; break;
+		case DATA2:     length = 3; break;
+		case DATA3:     length = 3; break;
+		case DATA4:     length = 3; break;
+		case DATA5:     length = 3; break;		  
+		
+
+		default:
+		  length = 1;
+		  break;         
 	}
 
 
@@ -313,7 +353,7 @@ void MAX11254_set_meas_mode(uint8_t mode){
 */
 void MAX11254_start_meas(uint8_t rate){
 	MAX11254_send_command(rate,1);
-	// tole se mal precekirej
+	
 }
 /*
 	Read results when RDY bit in status register is 1.

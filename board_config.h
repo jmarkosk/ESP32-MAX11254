@@ -26,6 +26,7 @@
  #define clkPin  18// CLK
  #define mosiPin 23// MOSI
  #define misoPin 19 // MISO
+ #define MAX11254_RSTB     2 //Active low power on reset input
 #endif
 
 #ifdef BOARD_ESPRESSIF_WROVER_DEVKIT

@@ -105,9 +105,12 @@ void spi_task(void *pvParameter)
 
     static uint8_t count =0;   
     
-
-
+    gpio_pad_select_gpio(MAX11254_RSTB);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(MAX11254_RSTB, GPIO_MODE_OUTPUT);
+    gpio_set_level(MAX11254_RSTB, 1);
     ESP_LOGI(tag1, ">> inializing");
+
     MAX11254_init();    
     ESP_LOGI(tag1, ">> initialized");     
 /*
@@ -116,9 +119,9 @@ void spi_task(void *pvParameter)
 		MAX11254_read_result();
 	}
 */	
-    ESP_LOGI(tag1, "... Calibration Start");   
-    MAX11254_calibration();
-    ESP_LOGI(tag1, "... Calibration END");   
+ //   ESP_LOGI(tag1, "... Calibration Start");   
+ //   MAX11254_calibration();
+ //   ESP_LOGI(tag1, "... Calibration END");   
 
 
     vTaskDelay(300 / portTICK_PERIOD_MS);
@@ -257,14 +260,14 @@ void app_main()
 				 10,                        //task priority
 				 NULL);                    //task handel
 
-/*
+
     xTaskCreate(&spi_task,               //Pointer to the function of the task (function pointer)
     		    "spi_task",              //Debug task name
 				 2048,                   //Stack size
 				 NULL,                   //pointer to task parameters
 				 5,                      //task priority
 				 NULL);                  //task handel
-
+/*
     xTaskCreate(&console_task,               //Pointer to the function of the task (function pointer)
     		    "console_task",              //Debug task name
 				 2048,                   //Stack size

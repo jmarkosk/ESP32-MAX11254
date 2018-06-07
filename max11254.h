@@ -70,26 +70,26 @@
 #endif
 
 #ifdef MAX11254
-    #define	STAT1	    0x0	// reg size = 8 bits
-    #define	CTRL1	    0x1	// reg size = 8 bits
-    #define	CTRL2	    0x2	// reg size = 8 bits (FOR GPIO pins)
-    #define	CTRL3	    0x3	// reg size = 8 bits
-    #define GPIO_CTRL 0x4
-    #define DELAY     0x5
-    #define CHMAP1    0X6
-    #define CHMAP0    0x7
-    #define SEQ       0x8
-    #define GPO_DIR   0x9          
-    #define	SOC		    0x10	// reg size = 24 bits		(System Offset Calibration)
-    #define	SGC		    0x11// reg size = 24 bits		(System Gain Calibration)
-    #define	SCOC	    0x12	// reg size = 24 bits		(Self-calibration Offset)
-    #define	SCGC	    0x13	// reg size = 24 bits		(Self-calibration Gain)
-    #define DATA0     0x14
-    #define DATA1     0x15
-    #define DATA2     0x16
-    #define DATA3     0x17
-    #define DATA4     0x18
-    #define DATA5     0x19
+    #define	STAT1	    0	// reg size = 8 bits
+    #define	CTRL1	    1	// reg size = 8 bits
+    #define	CTRL2	    2	// reg size = 8 bits (FOR GPIO pins)
+    #define	CTRL3	    3	// reg size = 8 bits
+    #define GPIO_CTRL 4
+    #define DELAY     5
+    #define CHMAP1    6
+    #define CHMAP0    7
+    #define SEQ       8
+    #define GPO_DIR   9          
+    #define	SOC		    10	// reg size = 24 bits		(System Offset Calibration)
+    #define	SGC		    11// reg size = 24 bits		(System Gain Calibration)
+    #define	SCOC	    12	// reg size = 24 bits		(Self-calibration Offset)
+    #define	SCGC	    13	// reg size = 24 bits		(Self-calibration Gain)
+    #define DATA0     14
+    #define DATA1     15
+    #define DATA2     16
+    #define DATA3     17
+    #define DATA4     18
+    #define DATA5     19
 
     // COMMAND BYTES  (MODE = 0, LINEF = 0)
     //CTRL1 : Control Register 1
