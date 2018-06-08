@@ -23,6 +23,8 @@
 
 #define SHIFT	5
 #define AV_RATE	10
+#define __IO_INTERRUPT__
+
 
 static const char* tag = "BLINK";
 static const char* tag1 = "MAX11254";
@@ -105,10 +107,10 @@ void spi_task(void *pvParameter)
 
     static uint8_t count =0;   
     
-    gpio_pad_select_gpio(MAX11254_RSTB);
+    gpio_pad_select_gpio(MAX11254_RSTB_PIN);
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(MAX11254_RSTB, GPIO_MODE_OUTPUT);
-    gpio_set_level(MAX11254_RSTB, 1);
+    gpio_set_direction(MAX11254_RSTB_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level(MAX11254_RSTB_PIN, 1);
     ESP_LOGI(tag1, ">> inializing");
 
     MAX11254_init();    
@@ -248,11 +250,128 @@ void console_task(void *pvParameter)
 
 
 
+#ifdef __IO_INTERRUPT__
+
+#define ESP_INTR_FLAG_DEFAULT 0
+
+SemaphoreHandle_t xSemaphoreGPIO = NULL;
+bool led_status = false;
+
+// interrupt service routine, called when the button is pressed
+void IRAM_ATTR button_isr_handler(void* arg) {
+	
+    // notify the button task
+    gpio_set_intr_type(BUTTON_PIN, GPIO_INTR_DISABLE);
+	xSemaphoreGiveFromISR(xSemaphoreGPIO, NULL);
+}
+
+// task that will react to button clicks
+void button_task(void* arg) {
+	
+	// infinite loop
+	for(;;) {
+		
+		// wait for the notification from the ISR
+		if(xSemaphoreTake(xSemaphoreGPIO,portMAX_DELAY) == pdTRUE) {
+			printf("Button pressed!\n");
+			led_status = !led_status;
+			gpio_set_level(LED_PIN, led_status);
+            vTaskDelay(10 / portTICK_PERIOD_MS); //10ms delay for debounce
+            gpio_set_intr_type(BUTTON_PIN, GPIO_INTR_NEGEDGE);
+		}
+	}
+}
+#endif
+
+
+
+//#define ESP_INTR_FLAG_DEFAULT 0
+
+SemaphoreHandle_t xSemaphoreGPIO_RDY = NULL;
+
+
+// interrupt service routine, called when the button is pressed
+void IRAM_ATTR MAX11254_conversion_complete_isr_handler(void* arg) {
+	
+    // notify the button task
+    gpio_set_intr_type(MAX11254_RDYB_PIN, GPIO_INTR_DISABLE);
+	xSemaphoreGiveFromISR(xSemaphoreGPIO_RDY, NULL);
+}
+
+
+void MAX11254_conversion_complete_task(void* arg){
+
+    for(;;){
+
+        if(xSemaphoreTake(xSemaphoreGPIO_RDY,portMAX_DELAY) == pdTRUE) {
+			printf("Converstion Complete!\n");			
+            vTaskDelay(10 / portTICK_PERIOD_MS); //10ms delay for debounce
+            gpio_set_intr_type(MAX11254_RDYB_PIN, GPIO_INTR_NEGEDGE);
+		}
+
+    }
+}
+
+
 void app_main()
 {
     
+ #ifdef __IO_INTERRUPT__
+
+	// create the binary semaphore
+	xSemaphoreGPIO = xSemaphoreCreateBinary();
+	
+	// configure button and led pins as GPIO pins
+	gpio_pad_select_gpio(BUTTON_PIN);
+	gpio_pad_select_gpio(LED_PIN);
+	
+	// set the correct direction
+	gpio_set_direction(BUTTON_PIN, GPIO_MODE_INPUT);
+    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
+	
+	// enable interrupt on falling (1->0) edge for button pin
+	gpio_set_intr_type(BUTTON_PIN, GPIO_INTR_NEGEDGE);
+	
+	
+	
+	// install ISR service with default configuration
+	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+	
+	// attach the interrupt service routine
+	gpio_isr_handler_add(BUTTON_PIN, button_isr_handler, NULL);
+
+
+ #endif  
+
+ 	// create the binary semaphore
+	xSemaphoreGPIO_RDY = xSemaphoreCreateBinary();
+	
+	// configure button and led pins as GPIO pins
+	gpio_pad_select_gpio(MAX11254_RDYB_PIN);
+	
+	
+	// set the correct direction
+	gpio_set_direction(MAX11254_RDYB_PIN, GPIO_MODE_INPUT);
+    
+	
+	// enable interrupt on falling (1->0) edge for button pin
+	gpio_set_intr_type(MAX11254_RDYB_PIN, GPIO_INTR_NEGEDGE);
+	
+	
+	
+	// install ISR service with default configuration
+	//gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+	
+	// attach the interrupt service routine
+	gpio_isr_handler_add(MAX11254_RDYB_PIN, MAX11254_conversion_complete_isr_handler, NULL);
+   
+   
+   
+   
+   
+   
     xSemaphore = xSemaphoreCreateMutex();
-  // vSemaphoreCreateBinary( xSemaphore );
+    // vSemaphoreCreateBinary( xSemaphore );
     xTaskCreate(&blink_task,               //Pointer to the function of the task (function pointer)
     		    "blink_task",              //Debug task name
 				 2048, //Stack size
@@ -267,13 +386,29 @@ void app_main()
 				 NULL,                   //pointer to task parameters
 				 5,                      //task priority
 				 NULL);                  //task handel
-/*
-    xTaskCreate(&console_task,               //Pointer to the function of the task (function pointer)
-    		    "console_task",              //Debug task name
+
+    xTaskCreate(&console_task,           //Pointer to the function of the task (function pointer)
+    		    "console_task",          //Debug task name
 				 2048,                   //Stack size
 				 NULL,                   //pointer to task parameters
 				 4,                      //task priority
 				 NULL);                  //task handel
 
-*/
+
+// start the task that will handle the button
+	xTaskCreate(&MAX11254_conversion_complete_task,             //Pointer to the function of the task (function pointer)
+                 "MAX11254_conversion_complete_task",          //Debug task name
+                 2048,                   //Stack size
+                 NULL,                   //pointer to task parameters
+                 10,                     //task priority
+                 NULL);                  //task handel
+
+    xTaskCreate(&button_task,
+                "button_task",
+                2048,
+                NULL,
+                10,
+                NULL);             
+
+
 }

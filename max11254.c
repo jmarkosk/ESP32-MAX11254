@@ -78,7 +78,7 @@ void MAX11254_init(void){
 	SPI_init();	
 	ESP_LOGI(tag, "... Bus Initilized.");
 	
- #if 0 
+ #if 1
     //Sequence from DATA sheet page 27
    //Write SEQ register: MUX 0b000, MODE to 0b10 GPODREN to 0B0, MDREN to 0b1, RDYBEN to 0b0
     MAX11254_write_reg(SEQ,0x12,0,0);  
@@ -299,7 +299,7 @@ void MAX11254_calibration(){
 */
 void MAX11254_self_calib(void){
 	MAX11254_send_command(SELF_CALIB,1);	//SCOC
-  vTaskDelay(300 / portTICK_PERIOD_MS);
+    vTaskDelay(300 / portTICK_PERIOD_MS);
 	
 }
 
